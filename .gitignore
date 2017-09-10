@@ -1,0 +1,6 @@
+*.iml
+modules.xml
+workspace.xml
+settings.json
+.DS_STORE
+*.gif
