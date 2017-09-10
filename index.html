@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Derp</title>
+	<style>
+		body {
+			margin: 0px;
+			padding: 0px;
+			overflow: hidden;
+			background-color: white;
+		}
+		
+		canvas {
+			width: 100%;
+			height: 100%;
+			diplay: block;
+		}
+	</style>
+</head>
+
+<body>
+	<script src="js/three.js"></script>
+	<script>
+        'use strict';
+
+        var PREV_X = 0;
+        var PREV_Y = 0;
+	    var CURR_X = 0;
+	    var CURR_Y = 0;
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        var material = new THREE.MeshBasicMaterial( { color: 0x0000aa } );
+        var cube = new THREE.Mesh( geometry, material );
+        scene.add( cube );
+
+        camera.position.z = 1;
+
+        var render = function () {
+            requestAnimationFrame( render );
+
+            renderer.render(scene, camera);
+        };
+
+
+	    window.addEventListener('mousemove', onOver, false);
+
+        function onOver(event) {
+		    CURR_X = event.clientX;
+		    CURR_Y = event.clientY;
+
+            cube.rotation.y += (CURR_X - PREV_X) / window.innerWidth;
+            cube.rotation.x += (CURR_Y - PREV_Y) / window.innerHeight;
+
+            PREV_X = CURR_X;
+		    PREV_Y = CURR_Y;
+	    }
+
+
+
+        render();
+	</script>
+</body>
+
+</html>

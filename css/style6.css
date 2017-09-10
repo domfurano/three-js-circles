@@ -1,0 +1,13 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    background-color: #ccc;
+}
+
+canvas {
+    display: block;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}

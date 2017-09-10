@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>O</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000000;
+		}
+	</style>
+	
+	<script src="js/pixi.js"></script>
+	<script src="js/RgbStringManipulator.js"></script>
+	
+</head>
+<body>
+	<script>	
+
+	// create an new instance of a pixi stage
+	var stage = new PIXI.Stage(0xaaaaaa, true);	
+	stage.setInteractive(true);
+
+	var renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
+	
+	// set the canvas width and height to fill the screen
+	renderer.view.style.width = window.innerWidth + "px";
+	renderer.view.style.height = window.innerHeight + "px";
+	renderer.view.style.display = "block";
+	 
+	// add render view to DOM
+	document.body.appendChild(renderer.view);
+
+	var CURR_X = 0;
+	var CURR_Y = 0;
+	
+	var CHAIN_LENGTH = 5;
+
+	var colorFadeIndex = CHAIN_LENGTH - 1;
+
+	var targetColor = randomRGBNumber();
+
+	var colors = [];
+	var circles = [];
+
+	for (var i = 0; i < CHAIN_LENGTH; i++) {
+		colors[i] = 0xffffff;
+		var graphics = new PIXI.Graphics();
+		circles[i] = graphics;
+			
+
+		graphics.lineStyle(1.0, colors[i], 1.0);
+		graphics.drawCircle(window.innerWidth / 2.0, window.innerHeight / 2.0, 50 + i);		
+		stage.addChild(graphics);
+		//graphics.mass = CHAIN_LENGTH >> 5;
+	}
+	
+	requestAnimFrame(animate);
+
+	function animate() {
+		for (var i = 0; i < CHAIN_LENGTH; i++) {
+			var graphics = circles[i];
+
+			
+			if (i != 0) {
+				colors[i] = fadeToRGBNumber(colors[i], colors[i - 1 >= 0 ? i - 1 : null], 10);
+			} else {
+				colors[i] = fadeToRGBNumber(colors[i], targetColor, 10);
+			}
+			if (colorFadeIndex == CHAIN_LENGTH - 1) {
+				colorFadeIndex = 0;
+			}
+
+			graphics.lineStyle(1.0, colors[i], 1.0);
+			
+		}
+
+		colorFadeIndex++;
+		if (colors[0] === targetColor) {
+			targetColor = randomRGBNumber();
+		}
+
+	    renderer.render(stage);
+
+		requestAnimFrame(animate);
+	}
+
+	function onOver(event) {
+		CURR_X = event.clientX;
+		CURR_Y = event.clientY;
+	}
+
+	//window.addEventListener('mousemove', onOver, false);
+
+	</script>
+
+	</body>
+</html>

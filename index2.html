@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>DEV</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				margin: 0px;
+				padding: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="js/pixi.js"></script>
+
+		<script>
+
+			//if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container;
+
+			var camera, scene, renderer;
+
+			init();
+			animate();
+
+            var CURR_X = 0;
+            var CURR_Y = 0;
+
+			function init() {
+
+				// create an new instance of a pixi stage
+				var stage = new PIXI.Stage(0xFFFFFF, true);
+				
+				stage.setInteractive(true);
+				
+				var sprite = PIXI.Sprite.fromImage("hillary.jpg");
+				//stage.addChild(sprite);
+				// create a renderer instance
+				//var renderer = new PIXI.CanvasRenderer(800, 600);//PIXI.autoDetectRenderer(800, 600);
+				var renderer = PIXI.autoDetectRenderer(620, 380);
+				
+				// set the canvas width and height to fill the screen
+				renderer.view.style.width = window.innerWidth + "px";
+				renderer.view.style.height = window.innerHeight + "px";
+				renderer.view.style.display = "block";
+				
+				// add render view to DOM
+				document.body.appendChild(renderer.view);
+				
+				var graphics = new PIXI.Graphics();
+				
+				// draw a circle
+				graphics.lineStyle(0);
+				graphics.beginFill(0xFFFFFF, 0.5);
+				graphics.drawCircle(470, 200, 100);
+					
+					
+				stage.addChild(graphics);
+				
+				// lets create moving shape
+				var thing = new PIXI.Graphics();
+				stage.addChild(thing);
+				thing.position.x = 620/2;
+				thing.position.y = 380/2;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+                window.addEventListener('mousemove', onOver, false);
+
+			}
+
+			function onWindowResize() {
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			}
+
+			function render() {
+				
+				// thing.clear();
+				// thing.lineStyle(30, 0xff0000, 1);
+				// thing.beginFill(0xffFF00, 0.5);
+				
+				// thing.moveTo(-120 + Math.sin(count) * 20, -100 + Math.cos(count)* 20);
+				// thing.lineTo(120 + Math.cos(count) * 20, -100 + Math.sin(count)* 20);
+				// thing.lineTo(120 + Math.sin(count) * 20, 100 + Math.cos(count)* 20);
+				// thing.lineTo(-120 + Math.cos(count)* 20, 100 + Math.sin(count)* 20);
+				// thing.lineTo(-120 + Math.sin(count) * 20, -100 + Math.cos(count)* 20);
+				
+				// thing.rotation = count * 0.1;
+				// renderer.render(stage);
+				// requestAnimFrame( animate );
+
+			}
+
+            function onOver(event) {
+                CURR_X = event.clientX;
+                CURR_Y = event.clientY;
+            }
+
+		</script>
+
+	</body>
+</html>
