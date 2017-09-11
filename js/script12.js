@@ -9,11 +9,9 @@
         window.moveTo(0, 0);
         window.resizeTo(screen.width, screen.height);
     }
-    var canvasAdjustedCount = 0;
     function adjustCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        console.log("Canvas adjusted " + ++canvasAdjustedCount + " times");
     }
     function drawBackground() {
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,15 +40,11 @@
     function Sky() {
         this.color = "rgba(126, 192, 238, 1.0)";
 
-        this.draw = function () {
+        this.draw = function (occlusion) {
             context.fillStyle = "black";
             context.fillRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = this.color;
+            context.fillStyle = this.color = "rgba(126, 192, 238, " + (1 - occlusion) + ")";
             context.fillRect(0, 0, canvas.width, canvas.height);
-        };
-
-        this.update = function (occlusion) {
-            this.color = "rgba(126, 192, 238, " + (1 - occlusion) + ")";
         };
     }
 
@@ -60,18 +54,17 @@
         this.radius = radius;
         this.color = "white";
 
-        this.draw = function () {
+        this.draw = function (occlusion) {
             context.beginPath();
             context.arc(this.x, this.y, this.radius, 0, TWO_PI);
             context.closePath();
-            context.fillStyle = this.color;
+            context.fillStyle = this.color = "rgba(255, 255, 255, " + (occlusion) + ")";;
             context.fill();
         };
 
-        this.update = function (occlusion) {
-            // this.x = Math.ceil(Math.random() * canvas.width);
-            // this.y = Math.ceil(Math.random() * canvas.height);
-            this.color = "rgba(255, 255, 255, " + (occlusion) + ")";
+        this.update = function () {
+            this.x = Math.ceil(Math.random() * canvas.width);
+            this.y = Math.ceil(Math.random() * canvas.height);
         };
     }
 
@@ -83,7 +76,10 @@
         this.color1 = "white";
         this.color2 = "black";
 
-        this.draw = function () {
+        this.draw = function (occlusion) {
+            this.color1 = "rgba(255, 255, 255, " + (occlusion / 2) + ")";
+            this.color2 = "rgba(255, 255, 255, 0)";
+
             var gradient = context.createRadialGradient(this.x, this.y, this.radius, this.x, this.y, this.radius + this.size);
             gradient.addColorStop(0, this.color1);
             gradient.addColorStop(1, this.color2);
@@ -96,12 +92,10 @@
             context.fill();
         };
 
-        this.update = function (occlusion) {
+        this.update = function () {
             this.x = canvas.width / 2;
             this.y = canvas.height / 2;
             this.radius = Math.ceil(Math.min(canvas.height / 12, canvas.width / 12));
-            this.color1 = "rgba(255, 255, 255, " + (occlusion / 2) + ")";
-            this.color2 = "rgba(255, 255, 255, 0)";
         };
     }
 
@@ -147,7 +141,7 @@
             context.fillStyle = "black";
             context.fill();
 
-            context.fillStyle = this.color;
+            context.fillStyle = this.color = "rgba(128, 128, 128, " + (1 - occlusion) + ")";
             context.fill();
 
             // context.font = "30px Arial";
@@ -155,11 +149,13 @@
             // context.fillText((occlusion * 100).toFixed(0) + "%", this.x, this.y);
         };
 
-        this.update = function (occlusion) {
+        this.move = function () {
             this.x = CLIENT_X;
             this.y = CLIENT_Y;
+        };
+
+        this.update = function () {
             this.radius = Math.ceil(Math.min(canvas.height / 12, canvas.width / 12));
-            this.color = "rgba(128, 128, 128, " + (1 - occlusion) + ")";
         };
     }
 
@@ -206,28 +202,31 @@
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
 
-        adjustCanvas();
+        adjustCanvas(function () { });
 
         /////////////////////////
         /**** Initial Setup ****/
         /////////////////////////
 
         var sky = new Sky();
-
         var stars = [];
-
         for (var i = 0; i < 100; i++) {
             stars.push(new Star(
                 Math.ceil(Math.random() * canvas.width),
                 Math.ceil(Math.random() * canvas.height),
                 Math.random() * 2));
         }
-
         var aura = new Aura(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4));
-
         var sun = new Sun(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4), 'yellow');
-
         var moon = new Moon(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4), 'darkgray');
+
+        // var context = {
+        //     "sky": sky,
+        //     "stars": stars,
+        //     "aura": aura,
+        //     "sun": sun,
+        //     "moon": moon
+        // };
 
         function animate() {
             window.requestAnimationFrame(animate);
@@ -245,23 +244,14 @@
 
             var occlusion = area / (sunArea);
 
+            // var theta = Math.atan((sun.y - moon.y) / (sun.x - moon.x));
 
-            sky.update(occlusion);
-            stars.forEach(function (star) {
-                star.update(occlusion);
-            });
-            aura.update(occlusion);
-            sun.update(occlusion);
-            moon.update(occlusion);
+            moon.move();
 
-            var theta = Math.atan((sun.y - moon.y) / (sun.x - moon.x));
-
-            sky.draw();
-            stars.forEach(function (star) {
-                star.draw();
-            });
-            aura.draw();
-            sun.draw();
+            sky.draw(occlusion);
+            stars.forEach(function (star) { star.draw(occlusion); });
+            aura.draw(occlusion);
+            sun.draw(occlusion);
             moon.draw(occlusion);
 
             /////////////////////////////////////////////////////////////////////////
@@ -280,7 +270,13 @@
 
         window.onresize = function () {
             adjustCanvas();
+            stars.forEach(function (star) { star.update(); });
+            aura.update();
+            sun.update();
+            moon.update();
         };
+
+        window.onresize();
 
         animate();
         // window.setInterval(animate, 64);
