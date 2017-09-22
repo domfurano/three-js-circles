@@ -49,46 +49,17 @@
         };
     }
 
-    function LightPollution() {
-
-        this.color0 = "rgba(255, 153, 0, 0.5)";
-        this.color1 = "rgba(0, 0, 0, 0.0)";
-
-
-        this.draw = function (occlusion) {
-            var gradient = context.createLinearGradient(canvas.width / 2, canvas.height, canvas.width / 2, canvas.height / 2);
-
-            gradient.addColorStop(0, fadeFromToRGBA(this.color0, "rgba(255, 153, 0, 0.0)", 1-occlusion));
-            gradient.addColorStop(1, fadeFromToRGBA(this.color1, "rgba(255, 153, 0, 0.0)", 1-occlusion));
-
-            context.fillStyle = gradient;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            // context.fillStyle = fadeFromToRGBA(this.color0, this.color1, occlusion);
-            // context.fillRect(0, 0, canvas.width, canvas.height);
-        };
-    }
-
     function Star(x, y, radius) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = "white";
-        this.twinkleAlpha = 1.0;
-        this.velocity = Math.random() / 16;
 
         this.draw = function (occlusion) {
-            this.twinkleAlpha = Math.min(1, this.twinkleAlpha + 0.01);
-            var alpha = Math.min(this.twinkleAlpha, occlusion);
-
-            this.x += this.velocity;
-            if (this.x > canvas.width) {
-                this.y = Math.random() * canvas.height;
-                this.x = 0;
-            }
             context.beginPath();
             context.arc(this.x, this.y, this.radius, 0, TWO_PI);
             context.closePath();
-            context.fillStyle = this.color = "rgba(255, 255, 255, " + (alpha) + ")";;
+            context.fillStyle = this.color = "rgba(255, 255, 255, " + (occlusion) + ")";;
             context.fill();
         };
 
@@ -140,7 +111,7 @@
             return Math.PI * this.radius * this.radius;
         };
 
-        this.draw = function (occlusion, twinkle) {
+        this.draw = function (occlusion) {
             context.beginPath();
             context.arc(this.x, this.y, this.radius, 0, TWO_PI);
             context.closePath();
@@ -240,19 +211,8 @@
         /////////////////////////
 
         var sky = new Sky();
-        var lightPollution = new LightPollution();
-        var stars = [];
-        for (var i = 0; i < 100; i++) {
-            stars.push(new Star(
-                Math.ceil(Math.random() * canvas.width),
-                Math.ceil(Math.random() * canvas.height),
-                Math.random() * 2));
-        }
-        var aura = new Aura(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4));
-        var sun = new Sun(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4));
-        var moon = new Moon(canvas.width / 2, canvas.height / 2, Math.min(canvas.height / 4, canvas.width / 4), 'darkgray');
 
-        var i = 0;
+
         function animate() {
             window.requestAnimationFrame(animate);
             drawBackground();
@@ -274,9 +234,7 @@
             moon.move();
 
             sky.draw(occlusion);
-            lightPollution.draw(occlusion);
             stars.forEach(function (star) { star.draw(occlusion); });
-            if (++i % 16 === 0) stars[Math.floor(Math.random() * stars.length)].twinkleAlpha = Math.random() / 2;
             aura.draw(occlusion);
             sun.draw(occlusion);
             moon.draw(occlusion);
@@ -306,6 +264,6 @@
         window.onresize();
 
         animate();
-        // window.setInterval(animate, 128);
+        // window.setInterval(animate, 64);
     });
 })();

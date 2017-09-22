@@ -35,14 +35,12 @@ function randomRGBA(alpha) {
 		+ alpha + ')';
 }
 
-function adjustAlpha(rgba, alpha) {
-	var red = redRGBA(rgba);
-	var green = greenRGBA(rgba);
-	var blue = blueRGBA(rgba);
-	var alpha = alphaRGBA(rgba);
-
-
-}
+// function adjustAlpha(rgba, alpha) {
+// 	var red = redRGBA(rgba);
+// 	var green = greenRGBA(rgba);
+// 	var blue = blueRGBA(rgba);
+// 	var alpha = alphaRGBA(rgba);
+// }
 
 function randomRGB() {
 	return '#' + ('000000' + Math.ceil(Math.random() * 0xffffff).toString(16)).slice(-6);
@@ -220,6 +218,32 @@ function fadeToRGBA(current, target, rate) {
 	}
 
 	return 'rgba(' + currR + ', ' + currG + ', ' + currB + ', ' + currA + ')';
+}
+
+function fadeFromToRGBA(current, target, amount) {
+	var currR = parseInt(redRGBA(current));
+	var currG = parseInt(greenRGBA(current));
+	var currB = parseInt(blueRGBA(current));
+	var currA = alphaRGBA(current);
+
+	var targR = parseInt(redRGBA(target));
+	var targG = parseInt(greenRGBA(target));
+	var targB = parseInt(blueRGBA(target));
+	var targA = alphaRGBA(target);
+
+	var currAmount = 1 - amount;
+
+	var R = saturate(Math.floor((currAmount * currR) + (amount * targR)));
+	var G = saturate(Math.floor((currAmount * currG) + (amount * targG)));
+	var B = saturate(Math.floor((currAmount * currB) + (amount * targB)));
+	var A = Math.max(0, Math.min(1, (currAmount * currA) + (amount * targA)));
+
+	console.log(A);
+	return 'rgba(' + R + ', ' + G + ', ' + B + ', ' + A + ')';
+}
+
+function saturate(value) {
+	return Math.max(0, Math.min(255, value));
 }
 
 function toRGBA(RGB, alpha) {
